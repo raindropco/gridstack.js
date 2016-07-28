@@ -239,7 +239,6 @@
      * @private
      */
     GridStackEngine.prototype._fixCollisions = function(node) {
-        var self = this;
         this._sortNodes(-1);
 
         var nn = node;
@@ -1579,7 +1578,7 @@
         }
         var heightData = Utils.parseHeight(val);
 
-        if (this.opts.cellHeightUnit === heightData.heightUnit && this.opts.height === heightData.height) {
+        if (this.opts.cellHeightUnit === heightData.unit && this.opts.height === heightData.height) {
             return ;
         }
         this.opts.cellHeightUnit = heightData.unit;
