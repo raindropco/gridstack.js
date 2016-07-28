@@ -37,16 +37,34 @@
     };
 
     var Utils = {
+        /**
+         * Returns if elements a & b are intersecting
+         * @param {Object} a
+         * @param {Object} b
+         * @returns {boolean}
+         */
         isIntercepted: function(a, b) {
             return !(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y);
         },
 
+        /**
+         * Sort nodes by their total consumed width and position
+         * @param {Object} nodes
+         * @param {int} dir  1 or -1 for direction
+         * @param {int} width input width
+         * @returns {Array}
+         */
         sort: function(nodes, dir, width) {
             width = width || _.chain(nodes).map(function(node) { return node.x + node.width; }).max().value();
             dir = dir != -1 ? 1 : -1;
             return _.sortBy(nodes, function(n) { return dir * (n.x + n.y * width); });
         },
 
+        /**
+         * Builds a stylesheet? // TODO: Wat?
+         * @param id
+         * @returns {*}
+         */
         createStylesheet: function(id) {
             var style = document.createElement('style');
             style.setAttribute('type', 'text/css');
@@ -60,10 +78,21 @@
             return style.sheet;
         },
 
+        /**
+         * Removes a stylesheet from the DOM
+         * @param id
+         */
         removeStylesheet: function(id) {
             $('STYLE[data-gs-style-id=' + id + ']').remove();
         },
 
+        /**
+         * Adds a css rule to a stylesheet
+         * @param sheet
+         * @param selector
+         * @param rules
+         * @param index
+         */
         insertCSSRule: function(sheet, selector, rules, index) {
             if (typeof sheet.insertRule === 'function') {
                 sheet.insertRule(selector + '{' + rules + '}', index);
@@ -72,6 +101,11 @@
             }
         },
 
+        /**
+         * Convert stupid input types for boolean values to proper values
+         * @param {string|boolean} v
+         * @returns {boolean}
+         */
         toBool: function(v) {
             if (typeof v == 'boolean') {
                 return v;
@@ -83,18 +117,42 @@
             return Boolean(v);
         },
 
+        /**
+         * TODO: What is this.node & this.nn?
+         * @param n
+         * @returns {boolean}
+         * @private
+         */
         _collisionNodeCheck: function(n) {
             return n != this.node && Utils.isIntercepted(n, this.nn);
         },
 
+        /**
+         * TODO: What is this.n
+         * @param bn
+         * @returns {*|boolean}
+         * @private
+         */
         _didCollide: function(bn) {
             return Utils.isIntercepted({x: this.n.x, y: this.newY, width: this.n.width, height: this.n.height}, bn);
         },
 
+        /**
+         * TODO: ??
+         * @param n
+         * @returns {*|boolean}
+         * @private
+         */
         _isAddNodeIntercepted: function(n) {
             return Utils.isIntercepted({x: this.x, y: this.y, width: this.node.width, height: this.node.height}, n);
         },
 
+        /**
+         * Parses various height inputs into an object with value and units. (20px => {height: 20, unit: 'px'})
+         * @param {string} val
+         * @returns {{height: *, unit: string}}
+         * @throws Error if invalid type (Expected: [Int/Float] px, em, rem, vh, vw)
+         */
         parseHeight: function(val) {
             var height = val;
             var heightUnit = 'px';
@@ -122,6 +180,15 @@
 
     var idSeq = 0;
 
+    /**
+     * TODO:
+     * @param width
+     * @param onchange
+     * @param floatMode
+     * @param height
+     * @param items
+     * @constructor
+     */
     var GridStackEngine = function(width, onchange, floatMode, height, items) {
         this.width = width;
         this.float = floatMode || false;
@@ -137,11 +204,17 @@
         this._removedNodes = [];
     };
 
+    /**
+     * TODO
+     */
     GridStackEngine.prototype.batchUpdate = function() {
         this._updateCounter = 1;
         this.float = true;
     };
 
+    /**
+     * TODO
+     */
     GridStackEngine.prototype.commit = function() {
         if (this._updateCounter !== 0) {
             this._updateCounter = 0;
@@ -151,11 +224,20 @@
         }
     };
 
+    /**
+     * TODO
+     * @param el
+     */
     // For Meteor support: https://github.com/troolee/gridstack.js/pull/272
     GridStackEngine.prototype.getNodeDataByDOMEl = function(el) {
         return _.find(this.nodes, function(n) { return el.get(0) === n.el.get(0); });
     };
 
+    /**
+     * TODO:
+     * @param node
+     * @private
+     */
     GridStackEngine.prototype._fixCollisions = function(node) {
         var self = this;
         this._sortNodes(-1);
@@ -175,18 +257,40 @@
         }
     };
 
+    /**
+     * Checks if a rect has any intersections or if it's free
+     * @param {int} x
+     * @param {int} y
+     * @param {int} width
+     * @param {int} height
+     * @returns {boolean} is area empty
+     */
     GridStackEngine.prototype.isAreaEmpty = function(x, y, width, height) {
-        var nn = {x: x || 0, y: y || 0, width: width || 1, height: height || 1};
+        var nn = {
+            x: x || 0,
+            y: y || 0,
+            width: width || 1,
+            height: height || 1
+        };
         var collisionNode = _.find(this.nodes, _.bind(function(n) {
             return Utils.isIntercepted(n, nn);
         }, this));
         return collisionNode === null || typeof collisionNode === 'undefined';
     };
 
+    /**
+     * Sorts the nodes such that they fit in a direction
+     * @param {int} dir
+     * @private
+     */
     GridStackEngine.prototype._sortNodes = function(dir) {
         this.nodes = Utils.sort(this.nodes, dir, this.width);
     };
 
+    /**
+     * TODO
+     * @private
+     */
     GridStackEngine.prototype._packNodes = function() {
         this._sortNodes();
 
@@ -1640,12 +1744,16 @@
     scope.GridStackUI.Utils = Utils;
     scope.GridStackUI.Engine = GridStackEngine;
 
+    /**
+     * Plugin entry point
+     * @param opts
+     * @returns {*}
+     */
     $.fn.gridstack = function(opts) {
         return this.each(function() {
             var o = $(this);
             if (!o.data('gridstack')) {
-                o
-                    .data('gridstack', new GridStack(this, opts));
+                o.data('gridstack', new GridStack(this, opts));
             }
         });
     };
