@@ -44,7 +44,12 @@
          * @returns {boolean}
          */
         isIntercepted: function(a, b) {
-            return !(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y);
+            return !(
+                a.x + a.width <= b.x || // Is a.x2 <= b.x?
+                b.x + b.width <= a.x || // Is b.x2 <= a.x
+                a.y + a.height <= b.y || // Is a.y2 <= b.y?
+                b.y + b.height <= a.y // Is b.y2 <= a.y
+            );
         },
 
         /**
@@ -61,8 +66,8 @@
         },
 
         /**
-         * Builds a stylesheet? // TODO: Wat?
-         * @param id
+         * Builds a stylesheet for an id and puts in the document head
+         * @param {string} id unique identifier for referencing stylesheet
          * @returns {*}
          */
         createStylesheet: function(id) {
@@ -80,7 +85,7 @@
 
         /**
          * Removes a stylesheet from the DOM
-         * @param id
+         * @param {String} id
          */
         removeStylesheet: function(id) {
             $('STYLE[data-gs-style-id=' + id + ']').remove();
@@ -646,7 +651,9 @@
             removable: false,
             removeTimeout: 2000,
             verticalMarginUnit: 'px',
-            cellHeightUnit: 'px'
+            cellHeightUnit: 'px',
+            showGrid: false,
+            guides: []
         });
 
         if (this.opts.rtl === 'auto') {
@@ -1627,6 +1634,11 @@
         this._setStaticClass();
     };
 
+    GridStack.prototype.setGridShown = function(show) {
+        this.opts.gridShown = (show === true);
+
+    };
+
     GridStack.prototype._setStaticClass = function() {
         var staticClassName = 'grid-stack-static';
 
@@ -1636,6 +1648,10 @@
             this.container.removeClass(staticClassName);
         }
     };
+
+    GridStack.prototype._showGrid(state) {
+
+    }
 
     GridStack.prototype._updateNodeWidths = function(oldWidth, newWidth) {
         this.grid._sortNodes();
@@ -1659,85 +1675,87 @@
         this.container.addClass('grid-stack-' + gridWidth);
     };
 
-    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-    GridStackEngine.prototype.batch_update = obsolete(GridStackEngine.prototype.batchUpdate);
-    GridStackEngine.prototype._fix_collisions = obsolete(GridStackEngine.prototype._fixCollisions,
-        '_fix_collisions', '_fixCollisions');
-    GridStackEngine.prototype.is_area_empty = obsolete(GridStackEngine.prototype.isAreaEmpty,
-        'is_area_empty', 'isAreaEmpty');
-    GridStackEngine.prototype._sort_nodes = obsolete(GridStackEngine.prototype._sortNodes,
-        '_sort_nodes', '_sortNodes');
-    GridStackEngine.prototype._pack_nodes = obsolete(GridStackEngine.prototype._packNodes,
-        '_pack_nodes', '_packNodes');
-    GridStackEngine.prototype._prepare_node = obsolete(GridStackEngine.prototype._prepareNode,
-        '_prepare_node', '_prepareNode');
-    GridStackEngine.prototype.clean_nodes = obsolete(GridStackEngine.prototype.cleanNodes,
-        'clean_nodes', 'cleanNodes');
-    GridStackEngine.prototype.get_dirty_nodes = obsolete(GridStackEngine.prototype.getDirtyNodes,
-        'get_dirty_nodes', 'getDirtyNodes');
-    GridStackEngine.prototype.add_node = obsolete(GridStackEngine.prototype.addNode,
-        'add_node', 'addNode, ');
-    GridStackEngine.prototype.remove_node = obsolete(GridStackEngine.prototype.removeNode,
-        'remove_node', 'removeNode');
-    GridStackEngine.prototype.can_move_node = obsolete(GridStackEngine.prototype.canMoveNode,
-        'can_move_node', 'canMoveNode');
-    GridStackEngine.prototype.move_node = obsolete(GridStackEngine.prototype.moveNode,
-        'move_node', 'moveNode');
-    GridStackEngine.prototype.get_grid_height = obsolete(GridStackEngine.prototype.getGridHeight,
-        'get_grid_height', 'getGridHeight');
-    GridStackEngine.prototype.begin_update = obsolete(GridStackEngine.prototype.beginUpdate,
-        'begin_update', 'beginUpdate');
-    GridStackEngine.prototype.end_update = obsolete(GridStackEngine.prototype.endUpdate,
-        'end_update', 'endUpdate');
-    GridStackEngine.prototype.can_be_placed_with_respect_to_height =
-        obsolete(GridStackEngine.prototype.canBePlacedWithRespectToHeight,
-        'can_be_placed_with_respect_to_height', 'canBePlacedWithRespectToHeight');
-    GridStack.prototype._trigger_change_event = obsolete(GridStack.prototype._triggerChangeEvent,
-        '_trigger_change_event', '_triggerChangeEvent');
-    GridStack.prototype._init_styles = obsolete(GridStack.prototype._initStyles,
-        '_init_styles', '_initStyles');
-    GridStack.prototype._update_styles = obsolete(GridStack.prototype._updateStyles,
-        '_update_styles', '_updateStyles');
-    GridStack.prototype._update_container_height = obsolete(GridStack.prototype._updateContainerHeight,
-        '_update_container_height', '_updateContainerHeight');
-    GridStack.prototype._is_one_column_mode = obsolete(GridStack.prototype._isOneColumnMode,
-        '_is_one_column_mode','_isOneColumnMode');
-    GridStack.prototype._prepare_element = obsolete(GridStack.prototype._prepareElement,
-        '_prepare_element', '_prepareElement');
-    GridStack.prototype.set_animation = obsolete(GridStack.prototype.setAnimation,
-        'set_animation', 'setAnimation');
-    GridStack.prototype.add_widget = obsolete(GridStack.prototype.addWidget,
-        'add_widget', 'addWidget');
-    GridStack.prototype.make_widget = obsolete(GridStack.prototype.makeWidget,
-        'make_widget', 'makeWidget');
-    GridStack.prototype.will_it_fit = obsolete(GridStack.prototype.willItFit,
-        'will_it_fit', 'willItFit');
-    GridStack.prototype.remove_widget = obsolete(GridStack.prototype.removeWidget,
-        'remove_widget', 'removeWidget');
-    GridStack.prototype.remove_all = obsolete(GridStack.prototype.removeAll,
-        'remove_all', 'removeAll');
-    GridStack.prototype.min_height = obsolete(GridStack.prototype.minHeight,
-        'min_height', 'minHeight');
-    GridStack.prototype.min_width = obsolete(GridStack.prototype.minWidth,
-        'min_width', 'minWidth');
-    GridStack.prototype._update_element = obsolete(GridStack.prototype._updateElement,
-        '_update_element', '_updateElement');
-    GridStack.prototype.cell_height = obsolete(GridStack.prototype.cellHeight,
-        'cell_height', 'cellHeight');
-    GridStack.prototype.cell_width = obsolete(GridStack.prototype.cellWidth,
-        'cell_width', 'cellWidth');
-    GridStack.prototype.get_cell_from_pixel = obsolete(GridStack.prototype.getCellFromPixel,
-        'get_cell_from_pixel', 'getCellFromPixel');
-    GridStack.prototype.batch_update = obsolete(GridStack.prototype.batchUpdate,
-        'batch_update', 'batchUpdate');
-    GridStack.prototype.is_area_empty = obsolete(GridStack.prototype.isAreaEmpty,
-        'is_area_empty', 'isAreaEmpty');
-    GridStack.prototype.set_static = obsolete(GridStack.prototype.setStatic,
-        'set_static', 'setStatic');
-    GridStack.prototype._set_static_class = obsolete(GridStack.prototype._setStaticClass,
-        '_set_static_class', '_setStaticClass');
-    // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
-
+    // Deprecation warnings
+    {
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+        GridStackEngine.prototype.batch_update = obsolete(GridStackEngine.prototype.batchUpdate);
+        GridStackEngine.prototype._fix_collisions = obsolete(GridStackEngine.prototype._fixCollisions,
+            '_fix_collisions', '_fixCollisions');
+        GridStackEngine.prototype.is_area_empty = obsolete(GridStackEngine.prototype.isAreaEmpty,
+            'is_area_empty', 'isAreaEmpty');
+        GridStackEngine.prototype._sort_nodes = obsolete(GridStackEngine.prototype._sortNodes,
+            '_sort_nodes', '_sortNodes');
+        GridStackEngine.prototype._pack_nodes = obsolete(GridStackEngine.prototype._packNodes,
+            '_pack_nodes', '_packNodes');
+        GridStackEngine.prototype._prepare_node = obsolete(GridStackEngine.prototype._prepareNode,
+            '_prepare_node', '_prepareNode');
+        GridStackEngine.prototype.clean_nodes = obsolete(GridStackEngine.prototype.cleanNodes,
+            'clean_nodes', 'cleanNodes');
+        GridStackEngine.prototype.get_dirty_nodes = obsolete(GridStackEngine.prototype.getDirtyNodes,
+            'get_dirty_nodes', 'getDirtyNodes');
+        GridStackEngine.prototype.add_node = obsolete(GridStackEngine.prototype.addNode,
+            'add_node', 'addNode, ');
+        GridStackEngine.prototype.remove_node = obsolete(GridStackEngine.prototype.removeNode,
+            'remove_node', 'removeNode');
+        GridStackEngine.prototype.can_move_node = obsolete(GridStackEngine.prototype.canMoveNode,
+            'can_move_node', 'canMoveNode');
+        GridStackEngine.prototype.move_node = obsolete(GridStackEngine.prototype.moveNode,
+            'move_node', 'moveNode');
+        GridStackEngine.prototype.get_grid_height = obsolete(GridStackEngine.prototype.getGridHeight,
+            'get_grid_height', 'getGridHeight');
+        GridStackEngine.prototype.begin_update = obsolete(GridStackEngine.prototype.beginUpdate,
+            'begin_update', 'beginUpdate');
+        GridStackEngine.prototype.end_update = obsolete(GridStackEngine.prototype.endUpdate,
+            'end_update', 'endUpdate');
+        GridStackEngine.prototype.can_be_placed_with_respect_to_height =
+            obsolete(GridStackEngine.prototype.canBePlacedWithRespectToHeight,
+                'can_be_placed_with_respect_to_height', 'canBePlacedWithRespectToHeight');
+        GridStack.prototype._trigger_change_event = obsolete(GridStack.prototype._triggerChangeEvent,
+            '_trigger_change_event', '_triggerChangeEvent');
+        GridStack.prototype._init_styles = obsolete(GridStack.prototype._initStyles,
+            '_init_styles', '_initStyles');
+        GridStack.prototype._update_styles = obsolete(GridStack.prototype._updateStyles,
+            '_update_styles', '_updateStyles');
+        GridStack.prototype._update_container_height = obsolete(GridStack.prototype._updateContainerHeight,
+            '_update_container_height', '_updateContainerHeight');
+        GridStack.prototype._is_one_column_mode = obsolete(GridStack.prototype._isOneColumnMode,
+            '_is_one_column_mode', '_isOneColumnMode');
+        GridStack.prototype._prepare_element = obsolete(GridStack.prototype._prepareElement,
+            '_prepare_element', '_prepareElement');
+        GridStack.prototype.set_animation = obsolete(GridStack.prototype.setAnimation,
+            'set_animation', 'setAnimation');
+        GridStack.prototype.add_widget = obsolete(GridStack.prototype.addWidget,
+            'add_widget', 'addWidget');
+        GridStack.prototype.make_widget = obsolete(GridStack.prototype.makeWidget,
+            'make_widget', 'makeWidget');
+        GridStack.prototype.will_it_fit = obsolete(GridStack.prototype.willItFit,
+            'will_it_fit', 'willItFit');
+        GridStack.prototype.remove_widget = obsolete(GridStack.prototype.removeWidget,
+            'remove_widget', 'removeWidget');
+        GridStack.prototype.remove_all = obsolete(GridStack.prototype.removeAll,
+            'remove_all', 'removeAll');
+        GridStack.prototype.min_height = obsolete(GridStack.prototype.minHeight,
+            'min_height', 'minHeight');
+        GridStack.prototype.min_width = obsolete(GridStack.prototype.minWidth,
+            'min_width', 'minWidth');
+        GridStack.prototype._update_element = obsolete(GridStack.prototype._updateElement,
+            '_update_element', '_updateElement');
+        GridStack.prototype.cell_height = obsolete(GridStack.prototype.cellHeight,
+            'cell_height', 'cellHeight');
+        GridStack.prototype.cell_width = obsolete(GridStack.prototype.cellWidth,
+            'cell_width', 'cellWidth');
+        GridStack.prototype.get_cell_from_pixel = obsolete(GridStack.prototype.getCellFromPixel,
+            'get_cell_from_pixel', 'getCellFromPixel');
+        GridStack.prototype.batch_update = obsolete(GridStack.prototype.batchUpdate,
+            'batch_update', 'batchUpdate');
+        GridStack.prototype.is_area_empty = obsolete(GridStack.prototype.isAreaEmpty,
+            'is_area_empty', 'isAreaEmpty');
+        GridStack.prototype.set_static = obsolete(GridStack.prototype.setStatic,
+            'set_static', 'setStatic');
+        GridStack.prototype._set_static_class = obsolete(GridStack.prototype._setStaticClass,
+            '_set_static_class', '_setStaticClass');
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
+    }
     scope.GridStackUI = GridStack;
 
     scope.GridStackUI.Utils = Utils;
